@@ -86,7 +86,7 @@ customers:['مشتریان','Customers'],nocust:['هیڅ مشتری نشته','N
 collect:['پیسې راټولول','Collect payment'],customer:['مشتری','Customer'],amount:['مبلغ','Amount'],collected:['راټول شو','Record payment'],firstc:['لومړی مشتری ثبت کړئ','Register a customer first'],
 desc:['تشریح','Description'],descph:['بریښنا، بانډویډت، معاش...','Electricity, bandwidth, salary...'],addexp:['لګښت ثبت کړئ','Add expense'],
 print:['چاپ / PDF','Print / PDF'],report_of:['میاشتنی راپور','Monthly report'],total:['ټول عاید','Total income'],
-col_pppoe:['PPPoE راټول شوي','PPPoE collected'],col_hotspot:['هاټ سپاټ راټول شوي','Hotspot collected'],unpaid:['PPPoE مشتریان چې نه دي ورکړي','PPPoE customers not paid'],allpaid:['ټولو ورکړي ✓','Everyone has paid ✓'],
+col_pppoe:['PPPoE راټول شوي','PPPoE collected'],col_hotspot:['هاټ سپاټ راټول شوي','Hotspot collected'],unpaid:['مشتریان چې نه دي ورکړي','Customers not paid'],due_pppoe:['PPPoE نه دي ورکړي','PPPoE unpaid'],due_hotspot:['هاټ سپاټ نه دي ورکړي','Hotspot unpaid'],status:['د راټولولو حالت','Collection status'],collected:['راټول شوي','Collected'],expected:['ټول تمه شوي','Expected'],left:['پاتې','Remaining'],people:['مشتري','customers'],ctype:['ډول','Type'],allpaid:['ټولو ورکړي ✓','Everyone has paid ✓'],
 ptext:['د هر پیکج میاشتنی نرخ ولیکئ. د مشتري ثبتولو پر مهال به پخپله ډکیږي.','Enter the monthly price of each package. It fills in automatically when you register a customer.'],
 pp_title:['PPPoE — نامحدود (1 څخه تر 12 Mbps)','PPPoE — Unlimited (1 to 12 Mbps)'],hs_title:['هاټ سپاټ','Hotspot'],
 unl:['نامحدود','Unlimited'],
@@ -165,11 +165,16 @@ function menu(o){const open=o===undefined?!$('dr').classList.contains('open'):o;
 function go(k){q='';editId=null;dupOK=false;tab=k;menu(false);render()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')menu(false)});
 function seg(){return `<div class="seg np"><button class="${cat==='pppoe'?'on':''}" onclick="cat='pppoe';q='';editId=null;render()">${t('pppoe')}</button><button class="hs ${cat==='hotspot'?'on':''}" onclick="cat='hotspot';q='';editId=null;render()">${t('hotspot')}</button></div>`}
+function due(m,ty){const pd=new Set(mp(m).map(x=>x.cid));return S.customers.filter(c=>c.type===ty&&(c.date||'').slice(0,7)<=m&&!pd.has(c.id))}
+function cstat(got,left,n,ty){const tot=got+left,pc=tot?Math.round(got/tot*100):0,col=ty==='hotspot'?'var(--hs)':'var(--pr)';
+  return `<div class="card"><h3>${t('status')} — ${t(ty)}</h3><div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mu);margin-bottom:6px"><span>${t('collected')}: <b class="ok">${money(got)}</b></span><span>${t('left')}: <b class="bad">${money(left)}</b> (${n} ${t('people')})</span></div><div style="background:var(--bg);border-radius:10px;height:12px;overflow:hidden"><div style="width:${pc}%;height:100%;background:${col};transition:width .4s"></div></div><div style="text-align:end;font-size:12px;color:var(--mu);margin-top:4px">${pc}% — ${t('expected')}: ${money(tot)}</div></div>`}
 function dash(){
   const m=rm,h=sum(mp(m,'hotspot')),p=sum(mp(m,'pppoe')),e=sum(S.expenses.filter(x=>x.date.startsWith(m)));const n=ty=>S.customers.filter(c=>c.type===ty).length;
+  const dp=due(m,'pppoe'),dh=due(m,'hotspot'),dpv=dp.reduce((a,c)=>a+(+c.fee||0),0),dhv=dh.reduce((a,c)=>a+(+c.fee||0),0);
   const st=(ic,l,v,c,hs)=>`<div class="stat ${hs?'h':''}"><span class="si">${ic}</span><span>${l}</span><b class="${c||''}">${v}</b></div>`;
   return `<div class="hero"><div><h2>${t('welcome')}، ${esc(uname)} 👋</h2><p>${t('sub')}</p></div><div class="np"><input type="month" value="${m}" onchange="rm=this.value;render()"></div></div>
-  <div class="grid">${st('🌐',t('cnt_pppoe'),n('pppoe'))}${st('📶',t('cnt_hotspot'),n('hotspot'),'',1)}${st('💵',t('inc_pppoe'),money(p))}${st('💵',t('inc_hotspot'),money(h),'',1)}${st('🧾',t('expense'),money(e),'bad')}${st('✅',t('net'),money(h+p-e),h+p-e>=0?'ok':'bad')}</div>
+  <div class="grid">${st('🌐',t('cnt_pppoe'),n('pppoe'))}${st('📶',t('cnt_hotspot'),n('hotspot'),'',1)}${st('💵',t('inc_pppoe'),money(p))}${st('💵',t('inc_hotspot'),money(h),'',1)}${st('🧾',t('expense'),money(e),'bad')}${st('✅',t('net'),money(h+p-e),h+p-e>=0?'ok':'bad')}${st('⏳',t('due_pppoe')+' ('+dp.length+')',money(dpv),'bad')}${st('⏳',t('due_hotspot')+' ('+dh.length+')',money(dhv),'bad',1)}</div>
+  ${cstat(p,dpv,dp.length,'pppoe')}${cstat(h,dhv,dh.length,'hotspot')}
   ${trend()}<h3 class="sec">${t('quick')}</h3><div class="tiles">${['reg','col','exp','rep','prc'].map(k=>`<button class="tile" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')}</div>`;
 }
 function fcs(){const k=q.toLowerCase();return S.customers.filter(c=>c.type===cat&&(!k||(c.name+' '+c.user+' '+c.phone).toLowerCase().includes(k)))}
@@ -244,7 +249,7 @@ function prc(){const g=(ty,l)=>`<div class="card"><h3>${l}</h3><div class="pk">$
 function rep(){
   const m=rm,hp=mp(m,'hotspot'),pp=mp(m,'pppoe'),ex=S.expenses.filter(x=>x.date.startsWith(m));
   const h=sum(hp),p=sum(pp),e=sum(ex),paid=new Set(mp(m).map(x=>x.cid));
-  const un=S.customers.filter(c=>c.type==='pppoe'&&!paid.has(c.id)&&(c.date||'').slice(0,7)<=m);
+  const un=[...due(m,'pppoe'),...due(m,'hotspot')];
   const rows=a=>a.map(x=>`<tr><td>${x.date}</td><td>${esc(cust(x.cid)?.name)}</td><td>${pname(cust(x.cid)?.pkg)}</td><td>${money(x.amount)}</td><td>${esc(x.note)}</td></tr>`).join('')||'<tr><td colspan=5>—</td></tr>';
   const tb=a=>`<div class="tw"><table><tr><th>${t('date')}</th><th>${t('customer')}</th><th>${t('pkg')}</th><th>${t('amount')}</th><th>${t('note')}</th></tr>${rows(a)}</table></div>`;
   return `<div class="card np"><label>${t('month')}</label><input type="month" value="${m}" onchange="rm=this.value;render()"><div class="row"><button class="btn" onclick="doPrint()">${t('print')}</button><button class="btn" onclick="dlReport()">${t('dl')}</button><button class="btn" onclick="dlCsv()">${t('csv')}</button></div><p style="color:var(--mu);font-size:13px">${t('dlnote')}</p></div>
@@ -252,8 +257,8 @@ function rep(){
   <div class="grid"><div class="stat"><span>PPPoE (${pp.length})</span><b>${money(p)}</b></div><div class="stat h"><span>${t('hotspot')} (${hp.length})</span><b>${money(h)}</b></div>
   <div class="stat"><span>${t('total')}</span><b>${money(h+p)}</b></div><div class="stat"><span>${t('expense')}</span><b class="bad">${money(e)}</b></div><div class="stat"><span>${t('net')}</span><b class="${h+p-e>=0?'ok':'bad'}">${money(h+p-e)}</b></div></div>
   <div class="card"><h3>${t('col_pppoe')}</h3>${tb(pp)}</div><div class="card"><h3>${t('col_hotspot')}</h3>${tb(hp)}</div>
-  <div class="card"><h3>${t('unpaid')} (${un.length}) — ${money(un.reduce((s,c)=>s+c.fee,0))}</h3><div class="tw"><table><tr><th>${t('name')}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th></tr>
-  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td class="np"><button class="wi" onclick="remind('${c.id}')">${WAI}</button></td></tr>`).join('')||`<tr><td colspan=5>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
+  <div class="card"><h3>${t('unpaid')} (${un.length}) — ${money(un.reduce((s,c)=>s+c.fee,0))}</h3><div class="tw"><table><tr><th>${t('name')}</th><th>${t('ctype')}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th><th class="np"></th></tr>
+  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${t(c.type)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td class="np"><button class="wi" onclick="remind('${c.id}')">${WAI}</button></td></tr>`).join('')||`<tr><td colspan=6>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
 }
 function doPrint(){try{window.print()}catch(e){}}
 function save2(name,data){const u=URL.createObjectURL(new Blob([data],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
