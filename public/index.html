@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="ps" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VitalTelecom Accounting</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef2f8;--card:#fff;--tx:#0f1b2d;--mu:#64748b;--pr:#1560d4;--pr2:#0a3d91;--bd:#dde5f0;--ok:#0f9d58;--bad:#d93025;--hs:#e8590c;--sh:0 2px 10px rgba(15,27,45,.07)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1320;--card:#152135;--tx:#e8eef7;--mu:#93a3b8;--pr:#4da3ff;--pr2:#16408a;--bd:#263650;--sh:none}}
 :root[data-theme="dark"]{--bg:#0b1320;--card:#152135;--tx:#e8eef7;--mu:#93a3b8;--pr:#4da3ff;--pr2:#16408a;--bd:#263650;--sh:none}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Noto Naskh Arabic",Arial,sans-serif;font-size:15px;line-height:1.6}
@@ -55,14 +54,17 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;box-shadow:0 
 .tile span{font-size:30px}.tile:hover{transform:translateY(-3px);border-color:var(--pr)}
 .card{border-radius:16px}.btn{border-radius:11px;box-shadow:0 3px 10px rgba(21,96,212,.3)}
 @media(min-width:900px){main{padding:22px}.stat b{font-size:26px}}
+body{min-height:100vh;display:flex;flex-direction:column}main{flex:1;width:100%}
+footer{text-align:center;padding:18px 12px;color:var(--mu);font-size:13px;border-top:1px solid var(--bd);background:var(--card);margin-top:10px}footer b{color:var(--pr)}
 @media(max-width:600px){main{padding:10px}.stat b{font-size:18px}}
 @media print{nav,header,.np{display:none}body{background:#fff}}
 </style>
 </head>
 <body>
-<header><div class="hi"><div class="hl"><button class="burger" id="bg" onclick="menu()" aria-label="menu"><i></i><i></i><i></i></button><div><h1>VitalTelecom Accounting</h1><small id="sub"></small></div></div><div class="hr"><span class="chip" id="usr" style="display:none"></span><button class="chip" id="lg" onclick="toggleLang()"></button><button class="chip" id="lo" style="display:none" onclick="logout()"></button></div></div></header>
+<header><div class="hi"><div class="hl"><button class="burger" id="bg" onclick="menu()" aria-label="menu"><i></i><i></i><i></i></button><div><h1>VitalTelecom Accounting</h1><small id="sub"></small></div></div><div class="hr"><span class="chip" id="usr" style="display:none"></span><button class="chip" id="th" onclick="toggleTheme()"></button><button class="chip" id="lg" onclick="toggleLang()"></button><button class="chip" id="lo" style="display:none" onclick="logout()"></button></div></div></header>
 <nav id="nav" style="display:none"></nav><div id="ov" onclick="menu(false)"></div><aside id="dr"></aside>
-<main id="app"></main><div id="toast" style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 20px;border-radius:24px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20"></div>
+<main id="app"></main>
+<footer dir="ltr">Web Developer: <b>Wafiullah Hemat</b></footer><div id="toast" style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 20px;border-radius:24px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20"></div>
 <script>
 const L={
 sub:['د PPPoE او هاټ سپاټ حساب ډاري','PPPoE & Hotspot billing and accounting'],
@@ -89,10 +91,11 @@ login:['ننوتل','Log in'],signup:['نوی حساب جوړول','Create accou
 su_text:['لومړی خپل یوزرنیم او پاسورډ جوړ کړئ. ځکه چې پاسورډ نشي بیرته ترلاسه کیدلی، یې په یاد ولرئ.','Create your username and password. The password cannot be recovered, so remember it.'],
 li_text:['خپل یوزرنیم او پاسورډ ولیکئ.','Enter your username and password.'],
 e_short:['یوزرنیم ولیکئ او پاسورډ لږ تر لږه 6 توري وي','Enter a username and a password of at least 6 characters'],e_match:['پاسورډونه سره نه جوړیږي','Passwords do not match'],e_bad:['یوزرنیم یا پاسورډ ناسم دی','Wrong username or password'],
-e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions']
+e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],themeb:['تیاره حالت','Dark mode'],lightb:['روښانه حالت','Light mode'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions']
 };
 const PK={pppoe:Array.from({length:12},(_,i)=>({id:'p'+(i+1),n:(i+1)+' Mbps'})),hotspot:[{id:'h10',n:'10 GB'},{id:'hu3',n:'3 Mbps'}]};
-let lang='ps';try{lang=localStorage.getItem('vt_lang')||'ps'}catch(e){}
+let lang='en',theme='light';try{lang=localStorage.getItem('vt_lang')||'en';theme=localStorage.getItem('vt_theme')||'light'}catch(e){}
+document.documentElement.dataset.theme=theme;
 const t=k=>L[k]?L[k][lang==='ps'?0:1]:k;
 const pname=id=>{const p=[...PK.pppoe,...PK.hotspot].find(p=>p.id===id);if(!p)return '—';return id==='h10'?p.n:t('unl')+' '+p.n};
 const IC={dash:'📊',reg:'📝',col:'💰',exp:'🧾',rep:'📈',prc:'🏷️'};
@@ -108,9 +111,10 @@ async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new Tex
 
 function chrome(){
   document.documentElement.lang=lang;document.documentElement.dir=lang==='ps'?'rtl':'ltr';
-  $('sub').textContent=t('sub');$('lg').textContent=t('lang');$('lo').textContent=t('logout');
+  $('sub').textContent=t('sub');$('th').textContent=theme==='dark'?'☀️':'🌙';$('lg').textContent=t('lang');$('lo').textContent=t('logout');
   $('lo').style.display=ready?'':'none';$('bg').classList.toggle('show',ready);$('usr').style.display=ready?'':'none';$('usr').textContent='👤 '+uname;
 }
+function toggleTheme(){theme=theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('vt_theme',theme)}catch(e){}render()}
 function toggleLang(){lang=lang==='ps'?'en':'ps';try{localStorage.setItem('vt_lang',lang)}catch(e){}render()}
 function msg(ic,tx){$('nav').innerHTML='';$('app').innerHTML=`<div class="msg card"><div class="ic">${ic}</div><p>${tx}</p></div>`}
 function authView(signup){
@@ -147,7 +151,7 @@ function save(){
     setTimeout(()=>$('usr').textContent='👤 '+uname,1800)},300)
 }
 function nav(){
-  $('dr').innerHTML=`<div class="dh"><b>📡 VitalTelecom</b><button onclick="menu(false)">✕</button></div><div class="du">👤 ${esc(uname)}</div>`+NAV.map(k=>`<button class="mi ${k===tab?'on':''}" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')+`<div class="df"><button class="mi" onclick="toggleLang()"><span>🌐</span>${t('lang')}</button><button class="mi" onclick="menu(false);logout()"><span>🚪</span>${t('logout')}</button></div>`;
+  $('dr').innerHTML=`<div class="dh"><b>📡 VitalTelecom</b><button onclick="menu(false)">✕</button></div><div class="du">👤 ${esc(uname)}</div>`+NAV.map(k=>`<button class="mi ${k===tab?'on':''}" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')+`<div class="df"><button class="mi" onclick="toggleTheme()"><span>${theme==='dark'?'☀️':'🌙'}</span>${theme==='dark'?t('lightb'):t('themeb')}</button><button class="mi" onclick="toggleLang()"><span>🌐</span>${t('lang')}</button><button class="mi" onclick="menu(false);logout()"><span>🚪</span>${t('logout')}</button></div>`;
 }
 function menu(o){const open=o===undefined?!$('dr').classList.contains('open'):o;$('dr').classList.toggle('open',open);$('ov').classList.toggle('open',open)}
 function go(k){tab=k;menu(false);render()}
