@@ -58,6 +58,10 @@ body{min-height:100vh;display:flex;flex-direction:column}main{flex:1;width:100%}
 footer{text-align:center;padding:18px 12px;color:var(--mu);font-size:13px;border-top:1px solid var(--bd);background:var(--card);margin-top:10px}footer b{color:var(--pr)}
 .tr{display:flex;gap:8px;align-items:flex-end}.tc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}.tc small{color:var(--mu);font-size:11px}
 .tb{height:110px;width:100%;max-width:46px;display:flex;flex-direction:column;justify-content:flex-end;background:var(--bg);border-radius:8px;overflow:hidden}.tb i{display:block;width:100%}
+#ws{position:fixed;inset-inline:0;bottom:0;z-index:60;transform:translateY(115%);transition:transform .28s;padding:0 12px calc(12px + env(safe-area-inset-bottom,0px))}#ws.open{transform:none}
+.wsb{max-width:460px;margin:auto;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:0 -6px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px}.wsh{display:flex;justify-content:space-between;align-items:center}
+.wab{display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;border:0;border-radius:12px;padding:13px 16px;font:inherit;font-size:15px;cursor:pointer;width:100%}.wab svg{width:22px;height:22px}
+.wi{background:#25D366;border:0;border-radius:9px;width:34px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-inline:3px;vertical-align:middle;padding:0}.wi svg{width:19px;height:19px}
 @media(max-width:600px){main{padding:10px}.stat b{font-size:18px}}
 @media print{nav,header,.np{display:none}body{background:#fff}}
 </style>
@@ -66,6 +70,7 @@ footer{text-align:center;padding:18px 12px;color:var(--mu);font-size:13px;border
 <header><div class="hi"><div class="hl"><button class="burger" id="bg" onclick="menu()" aria-label="menu"><i></i><i></i><i></i></button><div><h1>VitalTelecom Accounting</h1><small id="sub"></small></div></div><div class="hr"><span class="chip" id="usr" style="display:none"></span><button class="chip" id="th" onclick="toggleTheme()"></button><button class="chip" id="lg" onclick="toggleLang()"></button><button class="chip" id="lo" style="display:none" onclick="logout()"></button></div></div></header>
 <nav id="nav" style="display:none"></nav><div id="ov" onclick="menu(false)"></div><aside id="dr"></aside>
 <main id="app"></main>
+<div id="ws"></div>
 <footer dir="ltr">Web Developer: <b>Wafiullah Hemat</b></footer><div id="toast" style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 20px;border-radius:24px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20"></div>
 <script>
 const L={
@@ -93,7 +98,7 @@ login:['ننوتل','Log in'],signup:['نوی حساب جوړول','Create accou
 su_text:['لومړی خپل یوزرنیم او پاسورډ جوړ کړئ. ځکه چې پاسورډ نشي بیرته ترلاسه کیدلی، یې په یاد ولرئ.','Create your username and password. The password cannot be recovered, so remember it.'],
 li_text:['خپل یوزرنیم او پاسورډ ولیکئ.','Enter your username and password.'],
 e_short:['یوزرنیم ولیکئ او پاسورډ لږ تر لږه 6 توري وي','Enter a username and a password of at least 6 characters'],e_match:['پاسورډونه سره نه جوړیږي','Passwords do not match'],e_bad:['یوزرنیم یا پاسورډ ناسم دی','Wrong username or password'],
-e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],themeb:['تیاره حالت','Dark mode'],lightb:['روښانه حالت','Light mode'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions'],edit:['مشتری ایډیټ','Edit customer'],update:['اپډیټ','Update'],cancel:['لغوه','Cancel'],updated:['اپډیټ شو','Updated'],search:['لټون (نوم، یوزر، تلیفون)','Search (name, user, phone)'],dup:['دې مشتري دې میاشت لپاره مخکې پیسې ورکړې دي. که بیا هم غواړئ، یو ځل بیا کېکاږئ','Already paid for this month. Tap again to add anyway'],backup:['بیک‌اپ','Backup'],bktxt:['خپل ټول ډاټا د فایل په توګه خوندي کړئ یا بیرته یې راوړئ.','Save all your data as a file, or restore it.'],export:['ډاونلوډ بیک‌اپ','Download backup'],import:['بیک‌اپ بیرته راوړل','Restore backup'],importok:['بیرته راغله','Restored'],importbad:['ناسم فایل','Invalid file'],trend:['وروستۍ ۶ میاشتې عاید','Income, last 6 months'],rc:['رسید','Receipt'],rm_hi:['ښاغلی','Dear'],rm_txt:['ستاسو د انټرنیټ میاشتنی فیس نه دی ورکړل شوی. میاشت:','your internet fee is unpaid. Month:']
+e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],themeb:['تیاره حالت','Dark mode'],lightb:['روښانه حالت','Light mode'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions'],edit:['مشتری ایډیټ','Edit customer'],update:['اپډیټ','Update'],cancel:['لغوه','Cancel'],updated:['اپډیټ شو','Updated'],search:['لټون (نوم، یوزر، تلیفون)','Search (name, user, phone)'],dup:['دې مشتري دې میاشت لپاره مخکې پیسې ورکړې دي. که بیا هم غواړئ، یو ځل بیا کېکاږئ','Already paid for this month. Tap again to add anyway'],backup:['بیک‌اپ','Backup'],bktxt:['خپل ټول ډاټا د فایل په توګه خوندي کړئ یا بیرته یې راوړئ.','Save all your data as a file, or restore it.'],export:['ډاونلوډ بیک‌اپ','Download backup'],import:['بیک‌اپ بیرته راوړل','Restore backup'],importok:['بیرته راغله','Restored'],importbad:['ناسم فایل','Invalid file'],trend:['وروستۍ ۶ میاشتې عاید','Income, last 6 months'],rc:['رسید','Receipt'],saved_pay:['پیسې ثبت شوې — رسید ولیږئ','Payment saved — send receipt'],to_cust:['مشتري ته لیږل','Send to customer'],to_admin:['اډمین ته لیږل','Send to admin'],admin_wa:['د اډمین WhatsApp نمبر (هر پیسې ته خبر ورکول کیږي)','Admin WhatsApp number (notified on every payment)'],rm_hi:['ښاغلی','Dear'],rm_txt:['ستاسو د انټرنیټ میاشتنی فیس نه دی ورکړل شوی. میاشت:','your internet fee is unpaid. Month:']
 };
 const PK={pppoe:Array.from({length:12},(_,i)=>({id:'p'+(i+1),n:(i+1)+' Mbps'})),hotspot:[{id:'h10',n:'10 GB'},{id:'hu3',n:'3 Mbps'}]};
 let lang='en',theme='light';try{lang=localStorage.getItem('vt_lang')||'en';theme=localStorage.getItem('vt_theme')||'light'}catch(e){}
@@ -191,7 +196,7 @@ function col(){
   <div><label>${t('month')}</label><input id="pm" type="month" value="${rm}"></div><div><label>${t('amount')}</label><input id="pa" type="number" inputmode="numeric" value="${cs[0]?.fee||''}"></div><div><label>${t('date')}</label><input id="pd" type="date" value="${today()}"></div></div>
   <label>${t('note')}</label><textarea id="pn"></textarea><button class="btn" onclick="addP()">${t('collected')}</button></div>
   <div class="card"><h3>${t('recent')}</h3><div class="tw"><table><tr><th>${t('date')}</th><th>${t('customer')}</th><th>${t('month')}</th><th>${t('amount')}</th><th>${t('note')}</th><th></th></tr>
-  ${ps.map(p=>`<tr><td>${p.date}</td><td>${esc(cust(p.cid)?.name)}</td><td>${p.month}</td><td>${money(p.amount)}</td><td>${esc(p.note)}</td><td><button class="x" style="color:var(--ok)" onclick="rcpt('${p.id}')">📲</button><button class="x" onclick="del('P','${p.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=6>—</td></tr>'}</table></div></div>`;
+  ${ps.map(p=>`<tr><td>${p.date}</td><td>${esc(cust(p.cid)?.name)}</td><td>${p.month}</td><td>${money(p.amount)}</td><td>${esc(p.note)}</td><td><button class="wi" onclick="rcpt('${p.id}')">${WAI}</button><button class="x" onclick="del('P','${p.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=6>—</td></tr>'}</table></div></div>`;
 }
 let pend='';
 function del(k,id,b){
@@ -209,9 +214,18 @@ function addC(){const name=$('n').value.trim();if(!name)return toast(t('needname
   save();render()}
 function addP(){const cid=$('pc').value,amount=+$('pa').value,month=$('pm').value;if(!cid||!amount)return toast(t('needamt'));
   if(!dupOK&&S.payments.some(p=>p.cid===cid&&p.month===month)){dupOK=true;return toast(t('dup'))}
-  dupOK=false;S.payments.push({id:nid(),cid,month,amount,date:$('pd').value,note:$('pn').value});save();render()}
+  dupOK=false;const id=nid();S.payments.push({id,cid,month,amount,date:$('pd').value,note:$('pn').value});save();render();wsheet(id)}
 function wa(ph,tx){let n=String(ph||'').replace(/\D/g,'');if(n.startsWith('0'))n='93'+n.slice(1);window.open('https://wa.me/'+n+'?text='+encodeURIComponent(tx),'_blank')}
-function rcpt(id){const p=S.payments.find(x=>x.id===id),c=cust(p.cid)||{};wa(c.phone,['VitalTelecom — '+t('rc'),c.name,t('pkg')+': '+pname(c.pkg),t('month')+': '+p.month,t('amount')+': '+money(p.amount),p.date+' ✓'].join('\n'))}
+const WAI='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5a9.5 9.5 0 0 0-8.1 14.4L2.5 21.5l4.7-1.3A9.5 9.5 0 1 0 12 2.5z" stroke-width="1.8"/><path d="M8.6 8.2C8.2 9.8 9.6 12.4 11.4 14c1.6 1.5 4 2.2 4.8 1.6" stroke-width="2.4"/></svg>';
+let W={};const adm=()=>S.admin||'0730106071';
+function rcpt(id){wsheet(id)}
+function wsheet(id){const p=S.payments.find(x=>x.id===id);if(!p)return;const c=cust(p.cid)||{};
+  const tx=['VitalTelecom — '+t('rc'),t('customer')+': '+c.name,t(c.type)+' / '+pname(c.pkg),t('month')+': '+p.month,t('amount')+': '+money(p.amount),p.date+' ✓'].join('\n');
+  W={tx,ph:c.phone};
+  $('ws').innerHTML=`<div class="wsb"><div class="wsh"><b>✅ ${t('saved_pay')}</b><button class="x" style="color:var(--mu)" onclick="wclose()">✕</button></div><button class="wab" onclick="wa(W.ph,W.tx)">${WAI}${t('to_cust')}</button><button class="wab" onclick="wa(adm(),W.tx)">${WAI}${t('to_admin')} (${esc(adm())})</button></div>`;
+  $('ws').classList.add('open')}
+function wclose(){$('ws').classList.remove('open')}
+function aset(){return `<div class="card"><h3>${WAI.replace('stroke="#fff"','stroke="#25D366"').replace('<svg ','<svg width="20" height="20" style="vertical-align:middle" ')} ${t('admin_wa')}</h3><input type="tel" inputmode="tel" value="${esc(adm())}" onchange="S.admin=this.value.trim();save()"></div>`}
 function remind(id){const c=cust(id);wa(c.phone,t('rm_hi')+' '+c.name+', '+t('rm_txt')+' '+rm+' ('+money(c.fee)+'). VitalTelecom')}
 function trend(){const ms=[],d=new Date(rm+'-01');for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);ms.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'))}
   const v=ms.map(m=>[sum(mp(m,'pppoe')),sum(mp(m,'hotspot'))]),mx=Math.max(1,...v.map(a=>a[0]+a[1]));
@@ -226,7 +240,7 @@ function exp(){return `<div class="card"><h3>${t('addexp')}</h3>
   ${[...S.expenses].sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(x.desc)}</td><td>${money(x.amount)}</td><td>${esc(x.note)}</td><td><button class="x" onclick="del('E','${x.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=5>—</td></tr>'}</table></div></div>`}
 function addE(){const amount=+$('ea').value;if(!amount)return toast(t('needamt'));S.expenses.push({id:nid(),desc:$('ed').value,amount,date:$('edt').value,note:$('en').value});save();render()}
 function prc(){const g=(ty,l)=>`<div class="card"><h3>${l}</h3><div class="pk">${PK[ty].map(p=>`<div><label>${pname(p.id)}</label><input type="number" inputmode="numeric" value="${S.prices[p.id]||''}" onchange="S.prices['${p.id}']=+this.value;save()"></div>`).join('')}</div></div>`;
-  return `<p style="color:var(--mu)">${t('ptext')}</p>`+g('pppoe',t('pp_title'))+g('hotspot',t('hs_title'))+bk()}
+  return `<p style="color:var(--mu)">${t('ptext')}</p>`+g('pppoe',t('pp_title'))+g('hotspot',t('hs_title'))+aset()+bk()}
 function rep(){
   const m=rm,hp=mp(m,'hotspot'),pp=mp(m,'pppoe'),ex=S.expenses.filter(x=>x.date.startsWith(m));
   const h=sum(hp),p=sum(pp),e=sum(ex),paid=new Set(mp(m).map(x=>x.cid));
@@ -239,7 +253,7 @@ function rep(){
   <div class="stat"><span>${t('total')}</span><b>${money(h+p)}</b></div><div class="stat"><span>${t('expense')}</span><b class="bad">${money(e)}</b></div><div class="stat"><span>${t('net')}</span><b class="${h+p-e>=0?'ok':'bad'}">${money(h+p-e)}</b></div></div>
   <div class="card"><h3>${t('col_pppoe')}</h3>${tb(pp)}</div><div class="card"><h3>${t('col_hotspot')}</h3>${tb(hp)}</div>
   <div class="card"><h3>${t('unpaid')} (${un.length}) — ${money(un.reduce((s,c)=>s+c.fee,0))}</h3><div class="tw"><table><tr><th>${t('name')}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th></tr>
-  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td class="np"><button class="x" style="color:var(--ok)" onclick="remind('${c.id}')">📲</button></td></tr>`).join('')||`<tr><td colspan=5>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
+  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td class="np"><button class="wi" onclick="remind('${c.id}')">${WAI}</button></td></tr>`).join('')||`<tr><td colspan=5>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
 }
 function doPrint(){try{window.print()}catch(e){}}
 function save2(name,data){const u=URL.createObjectURL(new Blob([data],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
