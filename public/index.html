@@ -56,6 +56,8 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;box-shadow:0 
 @media(min-width:900px){main{padding:22px}.stat b{font-size:26px}}
 body{min-height:100vh;display:flex;flex-direction:column}main{flex:1;width:100%}
 footer{text-align:center;padding:18px 12px;color:var(--mu);font-size:13px;border-top:1px solid var(--bd);background:var(--card);margin-top:10px}footer b{color:var(--pr)}
+.tr{display:flex;gap:8px;align-items:flex-end}.tc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}.tc small{color:var(--mu);font-size:11px}
+.tb{height:110px;width:100%;max-width:46px;display:flex;flex-direction:column;justify-content:flex-end;background:var(--bg);border-radius:8px;overflow:hidden}.tb i{display:block;width:100%}
 @media(max-width:600px){main{padding:10px}.stat b{font-size:18px}}
 @media print{nav,header,.np{display:none}body{background:#fff}}
 </style>
@@ -91,7 +93,7 @@ login:['ننوتل','Log in'],signup:['نوی حساب جوړول','Create accou
 su_text:['لومړی خپل یوزرنیم او پاسورډ جوړ کړئ. ځکه چې پاسورډ نشي بیرته ترلاسه کیدلی، یې په یاد ولرئ.','Create your username and password. The password cannot be recovered, so remember it.'],
 li_text:['خپل یوزرنیم او پاسورډ ولیکئ.','Enter your username and password.'],
 e_short:['یوزرنیم ولیکئ او پاسورډ لږ تر لږه 6 توري وي','Enter a username and a password of at least 6 characters'],e_match:['پاسورډونه سره نه جوړیږي','Passwords do not match'],e_bad:['یوزرنیم یا پاسورډ ناسم دی','Wrong username or password'],
-e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],themeb:['تیاره حالت','Dark mode'],lightb:['روښانه حالت','Light mode'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions']
+e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],themeb:['تیاره حالت','Dark mode'],lightb:['روښانه حالت','Light mode'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions'],edit:['مشتری ایډیټ','Edit customer'],update:['اپډیټ','Update'],cancel:['لغوه','Cancel'],updated:['اپډیټ شو','Updated'],search:['لټون (نوم، یوزر، تلیفون)','Search (name, user, phone)'],dup:['دې مشتري دې میاشت لپاره مخکې پیسې ورکړې دي. که بیا هم غواړئ، یو ځل بیا کېکاږئ','Already paid for this month. Tap again to add anyway'],backup:['بیک‌اپ','Backup'],bktxt:['خپل ټول ډاټا د فایل په توګه خوندي کړئ یا بیرته یې راوړئ.','Save all your data as a file, or restore it.'],export:['ډاونلوډ بیک‌اپ','Download backup'],import:['بیک‌اپ بیرته راوړل','Restore backup'],importok:['بیرته راغله','Restored'],importbad:['ناسم فایل','Invalid file'],trend:['وروستۍ ۶ میاشتې عاید','Income, last 6 months'],rc:['رسید','Receipt'],rm_hi:['ښاغلی','Dear'],rm_txt:['ستاسو د انټرنیټ میاشتنی فیس نه دی ورکړل شوی. میاشت:','your internet fee is unpaid. Month:']
 };
 const PK={pppoe:Array.from({length:12},(_,i)=>({id:'p'+(i+1),n:(i+1)+' Mbps'})),hotspot:[{id:'h10',n:'10 GB'},{id:'hu3',n:'3 Mbps'}]};
 let lang='en',theme='light';try{lang=localStorage.getItem('vt_lang')||'en';theme=localStorage.getItem('vt_theme')||'light'}catch(e){}
@@ -100,6 +102,7 @@ const t=k=>L[k]?L[k][lang==='ps'?0:1]:k;
 const pname=id=>{const p=[...PK.pppoe,...PK.hotspot].find(p=>p.id===id);if(!p)return '—';return id==='h10'?p.n:t('unl')+' '+p.n};
 const IC={dash:'📊',reg:'📝',col:'💰',exp:'🧾',rep:'📈',prc:'🏷️'};
 const NAV=['dash','reg','col','exp','rep','prc'];
+let editId=null,q='',dupOK=false;
 let S={customers:[],payments:[],expenses:[],prices:{}},tab='dash',cat='pppoe',rm=new Date().toISOString().slice(0,7),db=null,uid=null,ready=false,sv=null,auth=null,uname='',phase='load';
 const $=id=>document.getElementById(id),nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const money=n=>(+n||0).toLocaleString('en-US'),today=()=>new Date().toISOString().slice(0,10);
@@ -154,25 +157,30 @@ function nav(){
   $('dr').innerHTML=`<div class="dh"><b>📡 VitalTelecom</b><button onclick="menu(false)">✕</button></div><div class="du">👤 ${esc(uname)}</div>`+NAV.map(k=>`<button class="mi ${k===tab?'on':''}" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')+`<div class="df"><button class="mi" onclick="toggleTheme()"><span>${theme==='dark'?'☀️':'🌙'}</span>${theme==='dark'?t('lightb'):t('themeb')}</button><button class="mi" onclick="toggleLang()"><span>🌐</span>${t('lang')}</button><button class="mi" onclick="menu(false);logout()"><span>🚪</span>${t('logout')}</button></div>`;
 }
 function menu(o){const open=o===undefined?!$('dr').classList.contains('open'):o;$('dr').classList.toggle('open',open);$('ov').classList.toggle('open',open)}
-function go(k){tab=k;menu(false);render()}
+function go(k){q='';editId=null;dupOK=false;tab=k;menu(false);render()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')menu(false)});
-function seg(){return `<div class="seg np"><button class="${cat==='pppoe'?'on':''}" onclick="cat='pppoe';render()">${t('pppoe')}</button><button class="hs ${cat==='hotspot'?'on':''}" onclick="cat='hotspot';render()">${t('hotspot')}</button></div>`}
+function seg(){return `<div class="seg np"><button class="${cat==='pppoe'?'on':''}" onclick="cat='pppoe';q='';editId=null;render()">${t('pppoe')}</button><button class="hs ${cat==='hotspot'?'on':''}" onclick="cat='hotspot';q='';editId=null;render()">${t('hotspot')}</button></div>`}
 function dash(){
   const m=rm,h=sum(mp(m,'hotspot')),p=sum(mp(m,'pppoe')),e=sum(S.expenses.filter(x=>x.date.startsWith(m)));const n=ty=>S.customers.filter(c=>c.type===ty).length;
   const st=(ic,l,v,c,hs)=>`<div class="stat ${hs?'h':''}"><span class="si">${ic}</span><span>${l}</span><b class="${c||''}">${v}</b></div>`;
   return `<div class="hero"><div><h2>${t('welcome')}، ${esc(uname)} 👋</h2><p>${t('sub')}</p></div><div class="np"><input type="month" value="${m}" onchange="rm=this.value;render()"></div></div>
   <div class="grid">${st('🌐',t('cnt_pppoe'),n('pppoe'))}${st('📶',t('cnt_hotspot'),n('hotspot'),'',1)}${st('💵',t('inc_pppoe'),money(p))}${st('💵',t('inc_hotspot'),money(h),'',1)}${st('🧾',t('expense'),money(e),'bad')}${st('✅',t('net'),money(h+p-e),h+p-e>=0?'ok':'bad')}</div>
-  <h3 class="sec">${t('quick')}</h3><div class="tiles">${['reg','col','exp','rep','prc'].map(k=>`<button class="tile" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')}</div>`;
+  ${trend()}<h3 class="sec">${t('quick')}</h3><div class="tiles">${['reg','col','exp','rep','prc'].map(k=>`<button class="tile" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')}</div>`;
 }
+function fcs(){const k=q.toLowerCase();return S.customers.filter(c=>c.type===cat&&(!k||(c.name+' '+c.user+' '+c.phone).toLowerCase().includes(k)))}
+function clist(cs){return `<table><tr><th>${t('name')}</th><th>${t('user_'+cat)}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th><th>${t('note')}</th><th></th></tr>
+  ${cs.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.user)}</td><td><span class="tag">${pname(c.pkg)}</span></td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td>${esc(c.note)}</td><td><button class="x" style="color:var(--pr)" onclick="editId='${c.id}';scrollTo(0,0);render()">✏️</button><button class="x" onclick="del('C','${c.id}',this)">✕</button></td></tr>`).join('')||`<tr><td colspan=7>${t('nocust')}</td></tr>`}</table>`}
+function lst(){$('lst').innerHTML=clist(fcs())}
 function reg(){
-  const pk=PK[cat],cs=S.customers.filter(c=>c.type===cat);
-  return seg()+`<div class="card"><h3>${t('newc')} — ${t(cat)}</h3>
-  <div class="row"><div><label>${t('name')}</label><input id="n"></div><div><label>${t('phone')}</label><input id="ph" inputmode="tel"></div><div><label>${t('user_'+cat)}</label><input id="u"></div></div>
-  <div class="row"><div><label>${t('pkg')}</label><select id="pk" onchange="$('fee').value=S.prices[this.value]||''">${pk.map(p=>`<option value="${p.id}">${pname(p.id)}</option>`).join('')}</select></div>
-  <div><label>${t('fee')}</label><input id="fee" type="number" inputmode="numeric" value="${S.prices[pk[0].id]||''}"></div><div><label>${t('date')}</label><input id="d" type="date" value="${today()}"></div></div>
-  <label>${t('note')}</label><textarea id="nt"></textarea><button class="btn" onclick="addC()">${t('save')}</button></div>
-  <div class="card"><h3>${t('customers')} (${cs.length})</h3><div class="tw"><table><tr><th>${t('name')}</th><th>${t('user_'+cat)}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th><th>${t('note')}</th><th></th></tr>
-  ${cs.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.user)}</td><td><span class="tag">${pname(c.pkg)}</span></td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td>${esc(c.note)}</td><td><button class="x" onclick="del('C','${c.id}',this)">✕</button></td></tr>`).join('')||`<tr><td colspan=7>${t('nocust')}</td></tr>`}</table></div></div>`;
+  const pk=PK[cat],e=editId&&cust(editId),ev=e&&e.type===cat?e:null,cs=fcs();
+  const v=k=>esc(ev?ev[k]??'':'');
+  return seg()+`<div class="card"><h3>${ev?t('edit'):t('newc')} — ${t(cat)}</h3>
+  <div class="row"><div><label>${t('name')}</label><input id="n" value="${v('name')}"></div><div><label>${t('phone')}</label><input id="ph" inputmode="tel" value="${v('phone')}"></div><div><label>${t('user_'+cat)}</label><input id="u" value="${v('user')}"></div></div>
+  <div class="row"><div><label>${t('pkg')}</label><select id="pk" onchange="$('fee').value=S.prices[this.value]||''">${pk.map(p=>`<option value="${p.id}" ${ev&&ev.pkg===p.id?'selected':''}>${pname(p.id)}</option>`).join('')}</select></div>
+  <div><label>${t('fee')}</label><input id="fee" type="number" inputmode="numeric" value="${ev?ev.fee:(S.prices[pk[0].id]||'')}"></div><div><label>${t('date')}</label><input id="d" type="date" value="${ev?ev.date:today()}"></div></div>
+  <label>${t('note')}</label><textarea id="nt">${v('note')}</textarea>
+  <div class="row" style="margin-top:6px"><button class="btn" onclick="addC()">${ev?t('update'):t('save')}</button>${ev?`<button class="btn" style="background:var(--mu)" onclick="editId=null;render()">${t('cancel')}</button>`:''}</div></div>
+  <div class="card"><h3>${t('customers')} (${S.customers.filter(c=>c.type===cat).length})</h3><input placeholder="🔍 ${t('search')}" value="${esc(q)}" oninput="q=this.value;lst()" style="margin-bottom:10px"><div class="tw" id="lst">${clist(cs)}</div></div>`;
 }
 function col(){
   const cs=S.customers.filter(c=>c.type===cat);
@@ -183,7 +191,7 @@ function col(){
   <div><label>${t('month')}</label><input id="pm" type="month" value="${rm}"></div><div><label>${t('amount')}</label><input id="pa" type="number" inputmode="numeric" value="${cs[0]?.fee||''}"></div><div><label>${t('date')}</label><input id="pd" type="date" value="${today()}"></div></div>
   <label>${t('note')}</label><textarea id="pn"></textarea><button class="btn" onclick="addP()">${t('collected')}</button></div>
   <div class="card"><h3>${t('recent')}</h3><div class="tw"><table><tr><th>${t('date')}</th><th>${t('customer')}</th><th>${t('month')}</th><th>${t('amount')}</th><th>${t('note')}</th><th></th></tr>
-  ${ps.map(p=>`<tr><td>${p.date}</td><td>${esc(cust(p.cid)?.name)}</td><td>${p.month}</td><td>${money(p.amount)}</td><td>${esc(p.note)}</td><td><button class="x" onclick="del('P','${p.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=6>—</td></tr>'}</table></div></div>`;
+  ${ps.map(p=>`<tr><td>${p.date}</td><td>${esc(cust(p.cid)?.name)}</td><td>${p.month}</td><td>${money(p.amount)}</td><td>${esc(p.note)}</td><td><button class="x" style="color:var(--ok)" onclick="rcpt('${p.id}')">📲</button><button class="x" onclick="del('P','${p.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=6>—</td></tr>'}</table></div></div>`;
 }
 let pend='';
 function del(k,id,b){
@@ -196,9 +204,21 @@ function del(k,id,b){
 }
 function toast(m){const e=$('toast');e.textContent=m;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,2200)}
 function addC(){const name=$('n').value.trim();if(!name)return toast(t('needname'));
-  S.customers.push({id:nid(),type:cat,name,phone:$('ph').value,user:$('u').value,pkg:$('pk').value,fee:+$('fee').value||0,date:$('d').value,note:$('nt').value});save();render()}
-function addP(){const cid=$('pc').value,amount=+$('pa').value;if(!cid||!amount)return toast(t('needamt'));
-  S.payments.push({id:nid(),cid,month:$('pm').value,amount,date:$('pd').value,note:$('pn').value});save();render()}
+  const o={type:cat,name,phone:$('ph').value,user:$('u').value,pkg:$('pk').value,fee:+$('fee').value||0,date:$('d').value,note:$('nt').value};
+  if(editId){Object.assign(cust(editId),o);editId=null;toast(t('updated'))}else S.customers.push({id:nid(),...o});
+  save();render()}
+function addP(){const cid=$('pc').value,amount=+$('pa').value,month=$('pm').value;if(!cid||!amount)return toast(t('needamt'));
+  if(!dupOK&&S.payments.some(p=>p.cid===cid&&p.month===month)){dupOK=true;return toast(t('dup'))}
+  dupOK=false;S.payments.push({id:nid(),cid,month,amount,date:$('pd').value,note:$('pn').value});save();render()}
+function wa(ph,tx){let n=String(ph||'').replace(/\D/g,'');if(n.startsWith('0'))n='93'+n.slice(1);window.open('https://wa.me/'+n+'?text='+encodeURIComponent(tx),'_blank')}
+function rcpt(id){const p=S.payments.find(x=>x.id===id),c=cust(p.cid)||{};wa(c.phone,['VitalTelecom — '+t('rc'),c.name,t('pkg')+': '+pname(c.pkg),t('month')+': '+p.month,t('amount')+': '+money(p.amount),p.date+' ✓'].join('\n'))}
+function remind(id){const c=cust(id);wa(c.phone,t('rm_hi')+' '+c.name+', '+t('rm_txt')+' '+rm+' ('+money(c.fee)+'). VitalTelecom')}
+function trend(){const ms=[],d=new Date(rm+'-01');for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);ms.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'))}
+  const v=ms.map(m=>[sum(mp(m,'pppoe')),sum(mp(m,'hotspot'))]),mx=Math.max(1,...v.map(a=>a[0]+a[1]));
+  return `<div class="card"><h3>📈 ${t('trend')}</h3><div class="tr">${ms.map((m,i)=>`<div class="tc"><div class="tb"><i style="height:${v[i][1]/mx*100}%;background:var(--hs)"></i><i style="height:${v[i][0]/mx*100}%;background:var(--pr)"></i></div><small>${m.slice(2)}</small><small>${money(v[i][0]+v[i][1])}</small></div>`).join('')}</div><p style="font-size:12px;color:var(--mu);margin:8px 0 0">🟦 PPPoE &nbsp; 🟧 ${t('hotspot')}</p></div>`}
+function bk(){return `<div class="card"><h3>💾 ${t('backup')}</h3><p style="color:var(--mu);font-size:13px">${t('bktxt')}</p><div class="row"><button class="btn" onclick="exportJ()">${t('export')}</button><label class="btn" style="text-align:center;cursor:pointer;color:#fff">${t('import')}<input type="file" accept=".json" hidden onchange="importJ(this)"></label></div></div>`}
+function exportJ(){save2('VitalTelecom-backup-'+today()+'.json',JSON.stringify(S))}
+function importJ(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.customers)||!Array.isArray(d.payments))throw 0;S=Object.assign({customers:[],payments:[],expenses:[],prices:{}},d);save();render();toast(t('importok'))}catch(e){toast(t('importbad'))}};r.readAsText(f)}
 function exp(){return `<div class="card"><h3>${t('addexp')}</h3>
   <div class="row"><div><label>${t('desc')}</label><input id="ed" placeholder="${t('descph')}"></div><div><label>${t('amount')}</label><input id="ea" type="number" inputmode="numeric"></div><div><label>${t('date')}</label><input id="edt" type="date" value="${today()}"></div></div>
   <label>${t('note')}</label><textarea id="en"></textarea><button class="btn" onclick="addE()">${t('save')}</button></div>
@@ -206,7 +226,7 @@ function exp(){return `<div class="card"><h3>${t('addexp')}</h3>
   ${[...S.expenses].sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${x.date}</td><td>${esc(x.desc)}</td><td>${money(x.amount)}</td><td>${esc(x.note)}</td><td><button class="x" onclick="del('E','${x.id}',this)">✕</button></td></tr>`).join('')||'<tr><td colspan=5>—</td></tr>'}</table></div></div>`}
 function addE(){const amount=+$('ea').value;if(!amount)return toast(t('needamt'));S.expenses.push({id:nid(),desc:$('ed').value,amount,date:$('edt').value,note:$('en').value});save();render()}
 function prc(){const g=(ty,l)=>`<div class="card"><h3>${l}</h3><div class="pk">${PK[ty].map(p=>`<div><label>${pname(p.id)}</label><input type="number" inputmode="numeric" value="${S.prices[p.id]||''}" onchange="S.prices['${p.id}']=+this.value;save()"></div>`).join('')}</div></div>`;
-  return `<p style="color:var(--mu)">${t('ptext')}</p>`+g('pppoe',t('pp_title'))+g('hotspot',t('hs_title'))}
+  return `<p style="color:var(--mu)">${t('ptext')}</p>`+g('pppoe',t('pp_title'))+g('hotspot',t('hs_title'))+bk()}
 function rep(){
   const m=rm,hp=mp(m,'hotspot'),pp=mp(m,'pppoe'),ex=S.expenses.filter(x=>x.date.startsWith(m));
   const h=sum(hp),p=sum(pp),e=sum(ex),paid=new Set(mp(m).map(x=>x.cid));
@@ -219,7 +239,7 @@ function rep(){
   <div class="stat"><span>${t('total')}</span><b>${money(h+p)}</b></div><div class="stat"><span>${t('expense')}</span><b class="bad">${money(e)}</b></div><div class="stat"><span>${t('net')}</span><b class="${h+p-e>=0?'ok':'bad'}">${money(h+p-e)}</b></div></div>
   <div class="card"><h3>${t('col_pppoe')}</h3>${tb(pp)}</div><div class="card"><h3>${t('col_hotspot')}</h3>${tb(hp)}</div>
   <div class="card"><h3>${t('unpaid')} (${un.length}) — ${money(un.reduce((s,c)=>s+c.fee,0))}</h3><div class="tw"><table><tr><th>${t('name')}</th><th>${t('pkg')}</th><th>${t('phone')}</th><th>${t('fee')}</th></tr>
-  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td></tr>`).join('')||`<tr><td colspan=4>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
+  ${un.map(c=>`<tr><td>${esc(c.name)}</td><td>${pname(c.pkg)}</td><td>${esc(c.phone)}</td><td>${money(c.fee)}</td><td class="np"><button class="x" style="color:var(--ok)" onclick="remind('${c.id}')">📲</button></td></tr>`).join('')||`<tr><td colspan=5>${t('allpaid')}</td></tr>`}</table></div></div></div>`;
 }
 function doPrint(){try{window.print()}catch(e){}}
 function save2(name,data){const u=URL.createObjectURL(new Blob([data],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
