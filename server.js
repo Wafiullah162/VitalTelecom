@@ -1,6 +1,6 @@
 // VitalTelecom Accounting — zero-dependency Node.js server (Node 18+)
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
-const PORT=process.env.PORT||3000,DIR=process.env.DATA_DIR||path.join(__dirname,'data');
+const PORT=process.env.PORT||3000,DIR=process.env.DATA_DIR||process.env.RAILWAY_VOLUME_MOUNT_PATH||path.join(__dirname,'data');
 const SIGNUP=process.env.ALLOW_SIGNUP!=='false';
 fs.mkdirSync(DIR,{recursive:true});
 const UF=path.join(DIR,'users.json'),SF=path.join(DIR,'sessions.json');
@@ -47,4 +47,4 @@ http.createServer(async(req,res)=>{
     }
     send(res,404,{error:'nf'});
   }catch(e){send(res,500,{error:'server'})}
-}).listen(PORT,()=>console.log('VitalTelecom running on port '+PORT));
+}).listen(PORT,()=>console.log('VitalTelecom running on port '+PORT+' | DATA DIR: '+DIR+' | users: '+Object.keys(users).length));
