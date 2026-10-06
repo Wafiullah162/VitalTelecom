@@ -33,13 +33,35 @@ textarea{min-height:64px;resize:vertical}
 .ok{color:var(--ok)}.bad{color:var(--bad)}h3{margin:0 0 8px;font-size:16px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
 .msg{max-width:420px;margin:40px auto;text-align:center}.msg .ic{font-size:42px}.msg p{color:var(--mu)}.err{color:var(--bad);font-size:13px;min-height:18px}
 .pk{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;box-shadow:0 2px 14px rgba(10,61,145,.35)}
+.hl{display:flex;align-items:center;gap:12px}
+.burger{display:none;width:42px;height:42px;border-radius:12px;border:0;background:rgba(255,255,255,.18);cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:0}
+.burger.show{display:flex}.burger i{display:block;width:20px;height:2.5px;background:#fff;border-radius:2px}
+#lo{display:none!important}
+#ov{position:fixed;inset:0;background:rgba(5,12,25,.55);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}#ov.open{opacity:1;pointer-events:auto}
+#dr{position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(300px,82vw);background:var(--card);z-index:50;transition:transform .28s ease;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 0 30px rgba(0,0,0,.3);overflow-y:auto}
+[dir=rtl] #dr{transform:translateX(100%)}[dir=ltr] #dr{transform:translateX(-100%)}#dr.open{transform:none!important}
+.dh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:2px}.dh button{border:0;background:var(--bg);color:var(--tx);width:36px;height:36px;border-radius:10px;font-size:16px;cursor:pointer}
+.du{background:linear-gradient(135deg,var(--pr2),var(--pr));color:#fff;padding:12px 14px;border-radius:12px;margin-bottom:8px;font-size:14px}
+.mi{display:flex;align-items:center;gap:12px;width:100%;text-align:start;border:0;background:none;color:var(--tx);font:inherit;font-size:16px;padding:13px 12px;border-radius:12px;cursor:pointer}
+.mi span{font-size:20px;width:26px;text-align:center}.mi:hover{background:var(--bg)}.mi.on{background:var(--pr);color:#fff}
+.df{margin-top:auto;border-top:1px solid var(--bd);padding-top:8px}
+.hero{background:linear-gradient(135deg,var(--pr2),var(--pr));color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--sh)}
+.hero h2{margin:0 0 4px;font-size:20px}.hero p{margin:0;opacity:.85;font-size:14px}.hero input{background:rgba(255,255,255,.95);color:#0f1b2d;border:0;min-width:160px}
+.stat{display:flex;flex-direction:column;gap:2px;position:relative;transition:transform .15s}.stat:hover{transform:translateY(-2px)}.stat .si{font-size:22px;margin-bottom:2px}
+.sec{margin:18px 2px 10px;font-size:15px;color:var(--mu)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px 10px;font:inherit;color:var(--tx);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:var(--sh);transition:transform .15s,border-color .15s}
+.tile span{font-size:30px}.tile:hover{transform:translateY(-3px);border-color:var(--pr)}
+.card{border-radius:16px}.btn{border-radius:11px;box-shadow:0 3px 10px rgba(21,96,212,.3)}
+@media(min-width:900px){main{padding:22px}.stat b{font-size:26px}}
 @media(max-width:600px){main{padding:10px}.stat b{font-size:18px}}
 @media print{nav,header,.np{display:none}body{background:#fff}}
 </style>
 </head>
 <body>
-<header><div class="hi"><div><h1>VitalTelecom Accounting</h1><small id="sub"></small></div><div class="hr"><span class="chip" id="usr" style="display:none"></span><button class="chip" id="lg" onclick="toggleLang()"></button><button class="chip" id="lo" style="display:none" onclick="logout()"></button></div></div></header>
-<nav id="nav"></nav>
+<header><div class="hi"><div class="hl"><button class="burger" id="bg" onclick="menu()" aria-label="menu"><i></i><i></i><i></i></button><div><h1>VitalTelecom Accounting</h1><small id="sub"></small></div></div><div class="hr"><span class="chip" id="usr" style="display:none"></span><button class="chip" id="lg" onclick="toggleLang()"></button><button class="chip" id="lo" style="display:none" onclick="logout()"></button></div></div></header>
+<nav id="nav" style="display:none"></nav><div id="ov" onclick="menu(false)"></div><aside id="dr"></aside>
 <main id="app"></main><div id="toast" style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 20px;border-radius:24px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20"></div>
 <script>
 const L={
@@ -67,12 +89,13 @@ login:['ننوتل','Log in'],signup:['نوی حساب جوړول','Create accou
 su_text:['لومړی خپل یوزرنیم او پاسورډ جوړ کړئ. ځکه چې پاسورډ نشي بیرته ترلاسه کیدلی، یې په یاد ولرئ.','Create your username and password. The password cannot be recovered, so remember it.'],
 li_text:['خپل یوزرنیم او پاسورډ ولیکئ.','Enter your username and password.'],
 e_short:['یوزرنیم ولیکئ او پاسورډ لږ تر لږه 6 توري وي','Enter a username and a password of at least 6 characters'],e_match:['پاسورډونه سره نه جوړیږي','Passwords do not match'],e_bad:['یوزرنیم یا پاسورډ ناسم دی','Wrong username or password'],
-e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 ']
+e_exists:['دا یوزرنیم مخکې شته','This username already exists'],e_rate:['ډیرې هڅې. وروسته بیا هڅه وکړئ','Too many attempts. Try again later'],haveacc:['حساب لرم — ننوتل','I have an account — Log in'],noacc:['حساب نه لرم — نوی حساب جوړول','No account — Create one'],logout:['وتل','Log out'],lang:['English','پښتو'],saved:['✓ خوندي شو','✓ Saved'],savefail:['⚠️ خوندي نشو','⚠️ Not saved'],hello:['👤 ','👤 '],quick:['ګړندۍ لارې','Quick actions']
 };
 const PK={pppoe:Array.from({length:12},(_,i)=>({id:'p'+(i+1),n:(i+1)+' Mbps'})),hotspot:[{id:'h10',n:'10 GB'},{id:'hu3',n:'3 Mbps'}]};
 let lang='ps';try{lang=localStorage.getItem('vt_lang')||'ps'}catch(e){}
 const t=k=>L[k]?L[k][lang==='ps'?0:1]:k;
 const pname=id=>{const p=[...PK.pppoe,...PK.hotspot].find(p=>p.id===id);if(!p)return '—';return id==='h10'?p.n:t('unl')+' '+p.n};
+const IC={dash:'📊',reg:'📝',col:'💰',exp:'🧾',rep:'📈',prc:'🏷️'};
 const NAV=['dash','reg','col','exp','rep','prc'];
 let S={customers:[],payments:[],expenses:[],prices:{}},tab='dash',cat='pppoe',rm=new Date().toISOString().slice(0,7),db=null,uid=null,ready=false,sv=null,auth=null,uname='',phase='load';
 const $=id=>document.getElementById(id),nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
@@ -86,7 +109,7 @@ async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new Tex
 function chrome(){
   document.documentElement.lang=lang;document.documentElement.dir=lang==='ps'?'rtl':'ltr';
   $('sub').textContent=t('sub');$('lg').textContent=t('lang');$('lo').textContent=t('logout');
-  $('lo').style.display=ready?'':'none';$('usr').style.display=ready?'':'none';$('usr').textContent='👤 '+uname;
+  $('lo').style.display=ready?'':'none';$('bg').classList.toggle('show',ready);$('usr').style.display=ready?'':'none';$('usr').textContent='👤 '+uname;
 }
 function toggleLang(){lang=lang==='ps'?'en':'ps';try{localStorage.setItem('vt_lang',lang)}catch(e){}render()}
 function msg(ic,tx){$('nav').innerHTML='';$('app').innerHTML=`<div class="msg card"><div class="ic">${ic}</div><p>${tx}</p></div>`}
@@ -123,15 +146,19 @@ function save(){
     try{const r=await api('state','PUT',{state:S});if(r.ok)tx(t('saved'));else{if(r.d.error==='auth'){phase='login';ready=false;return render()}tx(t('savefail'))}}catch(e){tx(t('savefail'))}
     setTimeout(()=>$('usr').textContent='👤 '+uname,1800)},300)
 }
-function nav(){$('nav').innerHTML=NAV.map(k=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render()">${t(k)}</button>`).join('')}
+function nav(){
+  $('dr').innerHTML=`<div class="dh"><b>📡 VitalTelecom</b><button onclick="menu(false)">✕</button></div><div class="du">👤 ${esc(uname)}</div>`+NAV.map(k=>`<button class="mi ${k===tab?'on':''}" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')+`<div class="df"><button class="mi" onclick="toggleLang()"><span>🌐</span>${t('lang')}</button><button class="mi" onclick="menu(false);logout()"><span>🚪</span>${t('logout')}</button></div>`;
+}
+function menu(o){const open=o===undefined?!$('dr').classList.contains('open'):o;$('dr').classList.toggle('open',open);$('ov').classList.toggle('open',open)}
+function go(k){tab=k;menu(false);render()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')menu(false)});
 function seg(){return `<div class="seg np"><button class="${cat==='pppoe'?'on':''}" onclick="cat='pppoe';render()">${t('pppoe')}</button><button class="hs ${cat==='hotspot'?'on':''}" onclick="cat='hotspot';render()">${t('hotspot')}</button></div>`}
 function dash(){
   const m=rm,h=sum(mp(m,'hotspot')),p=sum(mp(m,'pppoe')),e=sum(S.expenses.filter(x=>x.date.startsWith(m)));const n=ty=>S.customers.filter(c=>c.type===ty).length;
-  return `<div class="card np"><label>${t('month')}</label><input type="month" value="${m}" onchange="rm=this.value;render()"></div>
-  <div class="grid"><div class="stat"><span>${t('cnt_pppoe')}</span><b>${n('pppoe')}</b></div><div class="stat h"><span>${t('cnt_hotspot')}</span><b>${n('hotspot')}</b></div>
-  <div class="stat"><span>${t('inc_pppoe')}</span><b>${money(p)}</b></div><div class="stat h"><span>${t('inc_hotspot')}</span><b>${money(h)}</b></div>
-  <div class="stat"><span>${t('expense')}</span><b class="bad">${money(e)}</b></div><div class="stat"><span>${t('net')}</span><b class="${h+p-e>=0?'ok':'bad'}">${money(h+p-e)}</b></div></div>
-  <div class="card"><h3>${t('welcome')}</h3><p>${t('wtext')}</p></div>`;
+  const st=(ic,l,v,c,hs)=>`<div class="stat ${hs?'h':''}"><span class="si">${ic}</span><span>${l}</span><b class="${c||''}">${v}</b></div>`;
+  return `<div class="hero"><div><h2>${t('welcome')}، ${esc(uname)} 👋</h2><p>${t('sub')}</p></div><div class="np"><input type="month" value="${m}" onchange="rm=this.value;render()"></div></div>
+  <div class="grid">${st('🌐',t('cnt_pppoe'),n('pppoe'))}${st('📶',t('cnt_hotspot'),n('hotspot'),'',1)}${st('💵',t('inc_pppoe'),money(p))}${st('💵',t('inc_hotspot'),money(h),'',1)}${st('🧾',t('expense'),money(e),'bad')}${st('✅',t('net'),money(h+p-e),h+p-e>=0?'ok':'bad')}</div>
+  <h3 class="sec">${t('quick')}</h3><div class="tiles">${['reg','col','exp','rep','prc'].map(k=>`<button class="tile" onclick="go('${k}')"><span>${IC[k]}</span>${t(k)}</button>`).join('')}</div>`;
 }
 function reg(){
   const pk=PK[cat],cs=S.customers.filter(c=>c.type===cat);
